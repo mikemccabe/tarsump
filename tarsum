@@ -1,9 +1,10 @@
 #! /usr/bin/env python
- 
+
 # Copyright (C) 2008-2009 by Guy Rutenberg
 # Modified 2011 by Mike McCabe.  Original from
-# http://www.guyrutenberg.com/2009/04/29/tarsum-02-a-read-only-version-of-tarsum/
- 
+# http://www.guyrutenberg.com/2009/04/29/\
+#     tarsum-02-a-read-only-version-of-tarsum/
+
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
@@ -18,10 +19,11 @@
 # along with this program; if not, write to the
 # Free Software Foundation, Inc.,
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- 
+
 import hashlib
 import tarfile
 import re
+
 
 def tarsum(input_file, hash, output_file):
         """
@@ -30,14 +32,13 @@ def tarsum(input_file, hash, output_file):
         output_file - A FILE to write the computed signatures to.
         """
         tar = tarfile.open(mode="r|*", fileobj=input_file)
- 
-        chunk_size = 512*1024
-        store_digests = {}
- 
+
+        chunk_size = 512 * 1024
+
         for member in tar:
             if not member.isfile():
                 continue
-            m = re.search('\._[^/]+$',member.name)
+            m = re.search('\._[^/]+$', member.name)
             if m is not None:
                 continue
             f = tar.extractfile(member)
@@ -77,16 +78,18 @@ class hashing_file(object):
 
 def main():
     parser = OptionParser()
- 
-    version=("%prog 0.2.2\n"
-             "Copyright (C) 2008-2009 Guy Rutenberg <http://www.guyrutenberg.com/contact-me>"
-             "Modified 2011 Mike McCabe")
-    usage=("%prog [options] TARFILE\n"
-           "Print a checksum signature for every file in TARFILE.\n"
-           "With no FILE, or when FILE is -, read standard input.")
+
+    version = ("%prog 0.2.2\n"
+               "Copyright (C) 2008-2009 Guy Rutenberg "
+               "<http://www.guyrutenberg.com/contact-me>\n"
+               "Modified 2011 Mike McCabe")
+    usage = ("%prog [options] TARFILE\n"
+             "Print a checksum signature for every file in TARFILE.\n"
+             "With no FILE, or when FILE is -, read standard input.")
     parser = OptionParser(usage=usage, version=version)
     parser.add_option("-c", "--checksum", dest="checksum", type="string",
-        help="use HASH as for caclculating the checksums. [default: %default]", metavar="HASH",
+        help="use HASH as for caclculating the checksums. [default: %default]",
+        metavar="HASH",
         default="md5")
     parser.add_option("-o", "--output", dest="output", type="string",
         help="save signatures to FILE.", metavar="FILE")
@@ -98,15 +101,15 @@ def main():
     if option.pipe and not option.output:
         parser.error("--pipe option requires that --output also be specified")
     parser.destroy()
- 
+
     output_file = sys.stdout
     if option.output:
         output_file = open(option.output, "w")
- 
+
     input_file = sys.stdin
-    if len(args)==1 and args[0]!="-":
+    if len(args) == 1 and args[0] != "-":
         input_file = open(args[0], "r")
- 
+
     input_file = hashing_file(input_file, option.checksum, option.pipe)
 
     tarsum(input_file, option.checksum, output_file)
@@ -116,5 +119,5 @@ if __name__ == "__main__":
     from optparse import OptionParser
     import sys
     main()
- 
+
 # vim: ai ts=4 sts=4 et sw=4
