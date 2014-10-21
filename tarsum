@@ -22,10 +22,11 @@
 
 import hashlib
 import tarfile
+import datetime
 import re
 
 
-def tarsum(input_file, hash, output_file):
+def tarsum(input_file, hash, show_attr, output_file):
         """
         input_file  - A FILE object to read the tar file from.
         hash - The name of the hash to use. Must be supported by hashlib.
@@ -47,9 +48,13 @@ def tarsum(input_file, hash, output_file):
             while data:
                 h.update(data)
                 data = f.read(chunk_size)
-            output_file.write("%s  %s\n" % (h.hexdigest(), member.name))
+            if show_attr:
+                output_file.write("%s  %s  %s.%s  %d  %s  %s\n" % (h.hexdigest(), oct(member.mode).zfill(4), member.uname,member.gname, member.size, datetime.datetime.fromtimestamp(member.mtime).isoformat(),  member.name))
+            else:
+                output_file.write("%s  %s\n" % (h.hexdigest(), member.name))
             output_file.flush()
-        output_file.write("%s  %s\n" % (input_file.hexdigest(), "TOTAL"))
+        if not show_attr:
+            output_file.write("%s  %s\n" % (input_file.hexdigest(), "TOTAL"))
 
 
 class hashing_file(object):
@@ -95,6 +100,8 @@ def main():
         help="save signatures to FILE.", metavar="FILE")
     parser.add_option("-p", "--pipe", action="store_true",
                       help="copy input to output, for use in pipe.")
+    parser.add_option("-a", "--attr", action="store_true",
+                      help="archival output: also show mode, owner.group, file size and modification time.")
 
     (option, args) = parser.parse_args()
 
@@ -112,7 +119,7 @@ def main():
 
     input_file = hashing_file(input_file, option.checksum, option.pipe)
 
-    tarsum(input_file, option.checksum, output_file)
+    tarsum(input_file, option.checksum, option.attr, output_file)
 
 
 if __name__ == "__main__":
